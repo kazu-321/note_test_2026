@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>godnote viewer</title>
+    <style>
+      :root { color-scheme: light; --bg:#f5efe6; --panel:rgba(255,250,242,.94); --line:rgba(62,45,28,.12); --ink:#2b241c; --muted:#6f5d48; --accent:#9a5b2f; --shadow:0 20px 60px rgba(60,39,17,.1); }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin:0; color:var(--ink); background:linear-gradient(180deg,#faf4eb 0%,var(--bg) 100%); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      button { font: inherit; cursor: pointer; }
+      .app-shell { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+      .topbar { display:flex; justify-content:space-between; gap:16px; align-items:center; padding:18px 22px; background:rgba(251,247,241,.8); border-bottom:1px solid rgba(62,45,28,.08); backdrop-filter: blur(16px); }
+      .brand h1 { margin:0; font-family: Georgia, serif; font-size:1.55rem; }
+      .brand p { margin:4px 0 0; color:var(--muted); }
+      .badge { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:rgba(154,91,47,.12); color:var(--accent); font-weight:600; }
+      .toolbar { display:flex; flex-wrap:wrap; gap:10px; }
+      .toolbar button { border:1px solid var(--line); border-radius:14px; background:white; padding:10px 14px; box-shadow:0 6px 18px rgba(60,39,17,.06); }
+      .layout { min-height:0; display:grid; grid-template-columns:360px minmax(0,1fr); gap:20px; padding:20px; }
+      .sidebar, .content { min-height:0; background:var(--panel); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); overflow:hidden; }
+      .sidebar { display:grid; grid-template-rows:auto 1fr; }
+      .sidebar-head { padding:20px 20px 14px; border-bottom:1px solid rgba(62,45,28,.08); }
+      .sidebar-head h2, .content-head h2 { margin:0; font-family: Georgia, serif; }
+      .subject-list { min-height:0; overflow:auto; padding:14px; display:grid; gap:14px; }
+      .subject-card { border:1px solid rgba(62,45,28,.08); border-radius:18px; background:rgba(255,255,255,.84); overflow:hidden; }
+      .subject-card.open { border-color:rgba(154,91,47,.28); box-shadow:0 16px 34px rgba(60,39,17,.08); }
+      .subject-head, .note-item { width:100%; border:0; background:transparent; text-align:left; }
+      .subject-head { padding:14px 14px 12px; display:flex; justify-content:space-between; gap:12px; }
+      .subject-name { font-weight:700; }
+      .subject-meta, .note-meta, .summary, .empty { color:var(--muted); font-size:.93rem; line-height:1.55; }
+      .note-list { border-top:1px solid rgba(62,45,28,.08); display:grid; }
+      .note-item { padding:12px 14px; border-top:1px solid rgba(62,45,28,.06); display:grid; gap:4px; }
+      .note-item:first-child { border-top:0; }
+      .note-item:hover, .note-item.active { background:rgba(154,91,47,.08); }
+      .content { display:grid; grid-template-rows:auto 1fr; min-width:0; }
+      .content-head { padding:20px; border-bottom:1px solid rgba(62,45,28,.08); display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+      .content-head h2 { margin:2px 0 6px; font-size:clamp(1.4rem, 2.4vw, 2rem); }
+      .note-meta-panel { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
+      .element-label { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.92); border:1px solid rgba(62,45,28,.1); color:var(--muted); font-size:.9rem; }
+      .content-body { min-height:0; overflow:hidden; position:relative; }
+      .home-view, .note-view { height:100%; }
+      .home-view { padding:24px; display:grid; gap:18px; align-content:start; }
+      .hero { padding:22px; border-radius:22px; border:1px solid rgba(62,45,28,.08); background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,244,230,.92)); box-shadow:0 16px 40px rgba(60,39,17,.08); }
+      .hero h3 { margin:0 0 10px; font-family: Georgia, serif; font-size:clamp(2rem, 4vw, 3.4rem); line-height:1.05; }
+      .hero p { margin:0; color:var(--muted); line-height:1.7; max-width:60ch; }
+      .note-view { display:grid; grid-template-rows:auto 1fr; min-height:0; }
+      .note-meta-panel { padding:14px 20px 0; }
+      .stage-shell { min-height:0; position:relative; padding:18px; }
+      .stage { position:relative; height:100%; overflow:hidden; border-radius:22px; border:1px solid rgba(62,45,28,.08); background:linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)), radial-gradient(circle at 20% 20%, rgba(154,91,47,.05), transparent 32%), radial-gradient(circle at 80% 10%, rgba(90,127,160,.08), transparent 28%), #f8f3eb; box-shadow: inset 0 1px 0 rgba(255,255,255,.7); cursor: grab; }
+      .stage.dragging { cursor: grabbing; }
+      .world { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; }
+      .element { position:absolute; box-sizing:border-box; overflow:hidden; }
+      .element.text { display:flex; }
+      .element.text .surface { width:100%; height:100%; padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.96); border:1px solid rgba(62,45,28,.1); box-shadow:0 10px 24px rgba(60,39,17,.08); white-space:pre-wrap; overflow:hidden; line-height:1.65; }
+      .element.image img { width:100%; height:100%; display:block; object-fit:contain; border-radius:18px; background:rgba(255,255,255,.85); border:1px solid rgba(62,45,28,.1); box-shadow:0 10px 24px rgba(60,39,17,.08); }
+      .element.rect, .element.ellipse { border:2px solid rgba(47,93,98,.8); box-shadow:0 10px 24px rgba(60,39,17,.06); }
+      .element.rect { border-radius:16px; }
+      .element.ellipse { border-radius:999px; }
+      .element-svg { width:100%; height:100%; display:block; overflow:visible; }
+      .empty-card { max-width:58ch; border-radius:22px; border:1px solid rgba(62,45,28,.08); background:rgba(255,255,255,.88); box-shadow:0 16px 40px rgba(60,39,17,.08); padding:22px; }
+      .empty-card h3 { margin:0 0 8px; font-family: Georgia, serif; font-size:1.6rem; }
+      .error { color:#7c332d; background:rgba(183,73,58,.09); border:1px solid rgba(183,73,58,.15); border-radius:16px; padding:12px 14px; white-space:pre-wrap; }
+      @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } .sidebar { max-height:38vh; } }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <h1>godnote viewer</h1>
+          <p>readonly static viewer. editing is disabled, navigation and zoom/pan are available.</p>
+        </div>
+        <div class="toolbar">
+          <span class="badge">Readonly</span>
+          <button id="back-home" type="button">Home</button>
+          <button id="reset-view" type="button">Reset view</button>
+          <button id="fit-view" type="button">Fit note</button>
+        </div>
+      </header>
+      <main class="layout">
+        <aside class="sidebar">
+          <div class="sidebar-head"><h2>Subjects</h2><p class="muted">教科を開いて、ノートを選択してください。</p></div>
+          <div id="subject-list" class="subject-list"></div>
+        </aside>
+        <section class="content">
+          <div class="content-head">
+            <div>
+              <div class="badge" id="mode-badge">Home</div>
+              <h2 id="page-title">Home</h2>
+              <p class="summary" id="page-summary">ノートを開くと、ここに readonly のキャンバスが表示されます。</p>
+            </div>
+            <div class="note-meta-panel">
+              <span class="element-label" id="viewport-label">scale 1.00</span>
+              <span class="element-label" id="element-count">0 elements</span>
+            </div>
+          </div>
+          <div class="content-body" id="content-body"></div>
+        </section>
+      </main>
+    </div>
+    <script>
+      const dataRoot = './data';
+      const state = { manifest: null, subjects: new Map(), openSubjectId: null, selectedSubjectId: null, selectedNoteId: null, note: null, viewport: { x: 0, y: 0, scale: 1 }, viewportFromNote: { x: 0, y: 0, scale: 1 } };
+      const el = { subjectList: document.getElementById('subject-list'), contentBody: document.getElementById('content-body'), pageTitle: document.getElementById('page-title'), pageSummary: document.getElementById('page-summary'), modeBadge: document.getElementById('mode-badge'), viewportLabel: document.getElementById('viewport-label'), elementCount: document.getElementById('element-count'), backHome: document.getElementById('back-home'), resetView: document.getElementById('reset-view'), fitView: document.getElementById('fit-view') };
+      const cache = new Map();
+      const noteCache = new Map();
+      const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+      function parseHash() { const raw = location.hash.replace(/^#/, ''); if (!raw) return { subjectId: null, noteId: null }; const parts = raw.split('/').filter(Boolean); return { subjectId: parts[0] ?? null, noteId: parts[1] ?? null }; }
+      function setHash(subjectId, noteId = null) { if (!subjectId) { history.replaceState(null, '', location.pathname + location.search); return; } const next = noteId ? `#/${subjectId}/${noteId}` : `#/${subjectId}`; if (location.hash === next) return; history.replaceState(null, '', next); }
+      async function readJson(path) { if (!cache.has(path)) cache.set(path, fetch(path).then((response) => { if (!response.ok) throw new Error(`Failed to load ${path}: ${response.status}`); return response.json(); })); return cache.get(path); }
+      const loadManifest = () => readJson(`${dataRoot}/manifest.json`);
+      const loadSubject = (subjectId) => readJson(`${dataRoot}/subjects/${subjectId}.json`);
+      async function loadNote(subjectId, noteId) { const key = `${subjectId}:${noteId}`; if (!noteCache.has(key)) noteCache.set(key, readJson(`${dataRoot}/notes/${subjectId}/${noteId}/note.json`)); return noteCache.get(key); }
+      const subjectTitle = (subject) => subject?.name ?? 'Subject';
+      const noteTitle = (note) => note?.title ?? 'Note';
+      function elementBounds(element) { if (element.type === 'line') { const left = Math.min(element.start.x, element.end.x); const top = Math.min(element.start.y, element.end.y); const right = Math.max(element.start.x, element.end.x); const bottom = Math.max(element.start.y, element.end.y); return { left, top, right, bottom }; } return { left: element.x, top: element.y, right: element.x + element.width, bottom: element.y + element.height }; }
+      const noteViewportFromData = (note) => { const viewport = note?.canvas?.viewport ?? { x: 0, y: 0, scale: 1 }; return { x: Number.isFinite(viewport.x) ? viewport.x : 0, y: Number.isFinite(viewport.y) ? viewport.y : 0, scale: Number.isFinite(viewport.scale) ? viewport.scale : 1 }; };
+      const normalizedElements = (note) => [...(note?.canvas?.elements ?? [])].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0));
+      function renderTextElement(element) { return `<div class="element text" style="left:${element.x}px; top:${element.y}px; width:${element.width}px; height:${element.height}px; z-index:${element.zIndex};"><div class="surface">${escapeHtml(element.content ?? '')}</div></div>`; }
+      function renderImageElement(subjectId, noteId, element) { const src = `${dataRoot}/notes/${subjectId}/${noteId}/${element.src}`; return `<div class="element image" style="left:${element.x}px; top:${element.y}px; width:${element.width}px; height:${element.height}px; z-index:${element.zIndex};"><img src="${src}" alt="${escapeHtml(element.originalFileName || element.id)}" draggable="false" /></div>`; }
+      function renderRectElement(element) { const fill = element.fill ?? 'rgba(214, 232, 255, 0.8)'; const stroke = element.stroke ?? 'rgba(47, 93, 98, 0.8)'; return `<div class="element rect" style="left:${element.x}px; top:${element.y}px; width:${element.width}px; height:${element.height}px; z-index:${element.zIndex}; background:${fill}; border-color:${stroke}; border-width:${element.strokeWidth ?? 2}px;"></div>`; }
+      function renderEllipseElement(element) { const fill = element.fill ?? 'rgba(214, 232, 255, 0.8)'; const stroke = element.stroke ?? 'rgba(47, 93, 98, 0.8)'; return `<div class="element ellipse" style="left:${element.x}px; top:${element.y}px; width:${element.width}px; height:${element.height}px; z-index:${element.zIndex}; background:${fill}; border-color:${stroke}; border-width:${element.strokeWidth ?? 2}px;"></div>`; }
+      function renderLineElement(element) { const bounds = elementBounds(element); return `<div class="element line" style="left:${bounds.left}px; top:${bounds.top}px; width:${Math.max(1, bounds.right - bounds.left)}px; height:${Math.max(1, bounds.bottom - bounds.top)}px; z-index:${element.zIndex};"><svg class="element-svg" viewBox="0 0 ${Math.max(1, bounds.right - bounds.left)} ${Math.max(1, bounds.bottom - bounds.top)}" preserveAspectRatio="none" aria-hidden="true"><line x1="${element.start.x - bounds.left}" y1="${element.start.y - bounds.top}" x2="${element.end.x - bounds.left}" y2="${element.end.y - bounds.top}" stroke="${element.stroke ?? '#2f5d62'}" stroke-width="${element.strokeWidth ?? 6}" stroke-linecap="round" /></svg></div>`; }
+      function renderFreehandElement(element) { const bounds = elementBounds(element); const points = (element.points ?? []).map((point) => `${point.x - bounds.left},${point.y - bounds.top}`).join(' '); return `<div class="element freehand" style="left:${bounds.left}px; top:${bounds.top}px; width:${Math.max(1, bounds.right - bounds.left)}px; height:${Math.max(1, bounds.bottom - bounds.top)}px; z-index:${element.zIndex};"><svg class="element-svg" viewBox="0 0 ${Math.max(1, bounds.right - bounds.left)} ${Math.max(1, bounds.bottom - bounds.top)}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${points}" fill="none" stroke="${element.stroke ?? '#1f1a17'}" stroke-width="${element.strokeWidth ?? 4}" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`; }
+      function renderElement(subjectId, noteId, element) { if (element.type === 'text') return renderTextElement(element); if (element.type === 'image') return renderImageElement(subjectId, noteId, element); if (element.type === 'rect') return renderRectElement(element); if (element.type === 'ellipse') return renderEllipseElement(element); if (element.type === 'line') return renderLineElement(element); if (element.type === 'freehand') return renderFreehandElement(element); return ''; }
+      function setViewport(next) { state.viewport = { x: Number.isFinite(next.x) ? next.x : 0, y: Number.isFinite(next.y) ? next.y : 0, scale: Math.min(10000, Math.max(0.00001, Number.isFinite(next.scale) ? next.scale : 1)) }; renderViewport(); }
+      function renderViewport() { const world = document.getElementById('note-world'); if (!world || !state.note) return; world.style.transform = `translate(${state.viewport.x}px, ${state.viewport.y}px) scale(${state.viewport.scale})`; el.viewportLabel.textContent = `scale ${state.viewport.scale.toFixed(2)}`; }
+      function zoomAtClientPoint(clientX, clientY, nextScaleRaw, stageRect) { const nextScale = Math.min(10000, Math.max(0.00001, nextScaleRaw)); const worldX = (clientX - stageRect.left - state.viewport.x) / state.viewport.scale; const worldY = (clientY - stageRect.top - state.viewport.y) / state.viewport.scale; setViewport({ scale: nextScale, x: clientX - stageRect.left - worldX * nextScale, y: clientY - stageRect.top - worldY * nextScale }); }
+      function fitNoteToView() { const stage = document.getElementById('note-stage'); if (!stage || !state.note) return; const elements = normalizedElements(state.note); if (elements.length === 0) { setViewport({ x: 40, y: 40, scale: 1 }); return; } const bounds = elements.reduce((acc, element) => { const current = elementBounds(element); return { left: Math.min(acc.left, current.left), top: Math.min(acc.top, current.top), right: Math.max(acc.right, current.right), bottom: Math.max(acc.bottom, current.bottom) }; }, { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }); const padding = 96; const rect = stage.getBoundingClientRect(); const width = Math.max(1, bounds.right - bounds.left); const height = Math.max(1, bounds.bottom - bounds.top); const scale = Math.min((rect.width - padding * 2) / width, (rect.height - padding * 2) / height, 2); const safeScale = Math.min(10000, Math.max(0.00001, Number.isFinite(scale) ? scale : 1)); setViewport({ scale: safeScale, x: (rect.width - width * safeScale) / 2 - bounds.left * safeScale, y: (rect.height - height * safeScale) / 2 - bounds.top * safeScale }); }
+      function renderHome() { el.modeBadge.textContent = 'Home'; el.pageTitle.textContent = 'Home'; el.pageSummary.textContent = '教科を開いて、ノートを選ぶだけの readonly viewer です。'; el.elementCount.textContent = `${state.manifest?.subjects?.length ?? 0} subjects`; el.viewportLabel.textContent = 'scale 1.00'; el.contentBody.innerHTML = `<div class="home-view"><section class="hero"><h3>Home</h3><p>このページはアプリ本体と同じ導線で使えます。編集はできませんが、教科の開閉、ノート選択、キャンバスのパンとズームはそのまま使えます。</p></section><div class="empty-card"><h3>How to use</h3><p class="empty">左の Subjects から教科を開くと、ノート一覧が出ます。ノートを選ぶと、右側に readonly のキャンバスが表示されます。</p></div></div>`; }
+      function renderNoteView() { const subject = state.subjects.get(state.selectedSubjectId); const note = state.note; if (!subject || !note) { renderHome(); return; } const elements = normalizedElements(note); el.modeBadge.textContent = 'Readonly'; el.pageTitle.textContent = `${subjectTitle(subject)} / ${noteTitle(note)}`; el.pageSummary.textContent = '編集はできません。閲覧、パン、ズームのみ可能です。'; el.elementCount.textContent = `${elements.length} elements`; el.contentBody.innerHTML = `<div class="note-view"><div class="note-meta-panel"><span class="element-label">${escapeHtml(subjectTitle(subject))}</span><span class="element-label">${escapeHtml(noteTitle(note))}</span><span class="element-label">${elements.length} elements</span><span class="element-label">readonly</span></div><div class="stage-shell"><div class="stage" id="note-stage" tabindex="0"><div class="world" id="note-world"></div></div></div></div>`; const world = document.getElementById('note-world'); if (world) world.innerHTML = elements.map((element) => renderElement(subject.id, note.id, element)).join(''); state.viewport = { ...state.viewportFromNote }; renderViewport(); bindStageInteractions(); }
+      function renderSidebar() { const selectedKey = state.selectedSubjectId && state.selectedNoteId ? `${state.selectedSubjectId}:${state.selectedNoteId}` : null; const subjects = state.manifest?.subjects ?? []; el.subjectList.innerHTML = subjects.map((subjectEntry) => { const subject = state.subjects.get(subjectEntry.id); const isOpen = state.openSubjectId === subjectEntry.id; const notes = subject?.notes ?? []; return `<article class="subject-card ${isOpen ? 'open' : ''}"><button class="subject-head" type="button" data-subject="${subjectEntry.id}"><div><div class="subject-name">${escapeHtml(subjectEntry.name)}</div><div class="subject-meta">${notes.length} notes</div></div><div class="subject-meta">${isOpen ? '▾' : '▸'}</div></button>${isOpen ? `<div class="note-list">${notes.length > 0 ? notes.map((note) => `<button class="note-item ${selectedKey === `${subjectEntry.id}:${note.id}` ? 'active' : ''}" type="button" data-note="${subjectEntry.id}:${note.id}"><strong>${escapeHtml(note.title)}</strong><span class="note-meta">Open note</span></button>`).join('') : `<div class="note-item"><span class="empty">No notes in this subject.</span></div>`}</div>` : ''}</article>`; }).join(''); el.subjectList.querySelectorAll('[data-subject]').forEach((button) => { button.addEventListener('click', () => { const subjectId = button.getAttribute('data-subject'); if (!subjectId) return; state.openSubjectId = state.openSubjectId === subjectId ? null : subjectId; renderSidebar(); }); }); el.subjectList.querySelectorAll('[data-note]').forEach((button) => { button.addEventListener('click', async () => { const value = button.getAttribute('data-note'); if (!value) return; const [subjectId, noteId] = value.split(':'); await openNote(subjectId, noteId); }); }); }
+      async function openNote(subjectId, noteId) { const subject = state.subjects.get(subjectId); if (!subject) return; const note = await loadNote(subjectId, noteId); state.openSubjectId = subjectId; state.selectedSubjectId = subjectId; state.selectedNoteId = noteId; state.note = note; state.viewportFromNote = noteViewportFromData(note); state.viewport = { ...state.viewportFromNote }; setHash(subjectId, noteId); renderSidebar(); renderNoteView(); }
+      async function openSubject(subjectId) { state.openSubjectId = subjectId; state.selectedSubjectId = subjectId; state.selectedNoteId = null; state.note = null; setHash(subjectId, null); renderSidebar(); renderHome(); }
+      function bindStageInteractions() { const stage = document.getElementById('note-stage'); if (!stage) return; stage.onwheel = (event) => { event.preventDefault(); const rect = stage.getBoundingClientRect(); const nextScale = event.ctrlKey || event.metaKey ? state.viewport.scale * (event.deltaY > 0 ? 0.9 : 1.1) : state.viewport.scale * (event.deltaY > 0 ? 0.98 : 1.02); if (event.ctrlKey || event.metaKey) { zoomAtClientPoint(event.clientX, event.clientY, nextScale, rect); return; } setViewport({ ...state.viewport, y: state.viewport.y - event.deltaY }); }; let dragging = null; stage.onpointerdown = (event) => { if (event.button !== 0 && event.button !== 1) return; const target = event.target; if (target instanceof Element && target.closest('.element')) return; event.preventDefault(); stage.setPointerCapture(event.pointerId); dragging = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, viewport: { ...state.viewport } }; stage.classList.add('dragging'); }; stage.onpointermove = (event) => { if (!dragging || dragging.pointerId !== event.pointerId) return; const dx = event.clientX - dragging.startX; const dy = event.clientY - dragging.startY; setViewport({ ...dragging.viewport, x: dragging.viewport.x + dx, y: dragging.viewport.y + dy }); }; const finishDrag = (event) => { if (!dragging || dragging.pointerId !== event.pointerId) return; dragging = null; stage.classList.remove('dragging'); try { stage.releasePointerCapture(event.pointerId); } catch {} }; stage.onpointerup = finishDrag; stage.onpointercancel = finishDrag; }
+      async function bootstrap() { try { const manifest = await loadManifest(); state.manifest = manifest; const subjectRecords = await Promise.all((manifest.subjects ?? []).map(async (subject) => [subject.id, await loadSubject(subject.id)])); state.subjects = new Map(subjectRecords); renderSidebar(); const { subjectId, noteId } = parseHash(); if (subjectId && noteId) { await openNote(subjectId, noteId); } else if (subjectId) { await openSubject(subjectId); } else { renderHome(); } } catch (error) { el.contentBody.innerHTML = `<div class="empty-state"><div class="empty-card"><h3>Failed to load</h3><div class="error">${escapeHtml(error instanceof Error ? error.message : String(error))}</div></div></div>`; } }
+      el.backHome.addEventListener('click', () => { state.selectedSubjectId = null; state.selectedNoteId = null; state.note = null; state.viewportFromNote = { x: 0, y: 0, scale: 1 }; setHash(null); renderHome(); renderSidebar(); });
+      el.resetView.addEventListener('click', () => setViewport(state.viewportFromNote));
+      el.fitView.addEventListener('click', () => fitNoteToView());
+      window.addEventListener('hashchange', async () => { const { subjectId, noteId } = parseHash(); if (subjectId && noteId) { await openNote(subjectId, noteId); return; } if (subjectId) { await openSubject(subjectId); return; } el.backHome.click(); });
+      bootstrap();
+    </script>
+  </body>
+</html>
