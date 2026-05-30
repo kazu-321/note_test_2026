@@ -8,12 +8,12 @@
   "canvas": {
     "type": "infinite",
     "viewport": {
-      "x": -149,
-      "y": -47,
+      "x": 1,
+      "y": -114,
       "scale": 1
     },
     "grid": {
-      "mode": "free",
+      "mode": "assisted",
       "snapStep": 10,
       "gridSize": 100,
       "visible": false
