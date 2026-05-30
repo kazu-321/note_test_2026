@@ -8,8 +8,8 @@
   "canvas": {
     "type": "infinite",
     "viewport": {
-      "x": 0,
-      "y": 0,
+      "x": -149,
+      "y": -47,
       "scale": 1
     },
     "grid": {
@@ -42,8 +42,8 @@
       {
         "id": "9a61fad7-f159-430f-ac14-70d0c8b0bba6",
         "type": "image",
-        "x": 1031,
-        "y": 164,
+        "x": 995,
+        "y": 182,
         "width": 218,
         "height": 240,
         "rotation": 0,
@@ -56,6 +56,96 @@
           "importedAt": "2026-05-30T02:04:13.024Z",
           "transparentBackgroundApplied": false,
           "perspectiveTransformApplied": true
+        }
+      },
+      {
+        "id": "21a800f8-da3e-4aa6-b9e8-ec70878b86ab",
+        "type": "text",
+        "x": 320,
+        "y": 206,
+        "width": 280,
+        "height": 329,
+        "rotation": 0,
+        "zIndex": 3,
+        "createdAt": "2026-05-30T03:28:23.859Z",
+        "updatedAt": "2026-05-30T03:29:14.701Z",
+        "content": "# mdに対応！\n- a\n- b\n1. aa\n2. bb\n$\\int_{-\\infin}^{\\infin} x dx$ texにも対応！！",
+        "format": "markdown-tex",
+        "style": {
+          "fontSize": 18,
+          "color": "#1f1a17",
+          "backgroundColor": "rgba(255,255,255,0.96)",
+          "padding": 12
+        }
+      },
+      {
+        "id": "f0dd98dc-9dd2-4cb6-8e8d-5e18484cb0d1",
+        "type": "rect",
+        "x": 662,
+        "y": 346,
+        "width": 206,
+        "height": 87,
+        "rotation": 0,
+        "zIndex": 4,
+        "createdAt": "2026-05-30T03:29:18.611Z",
+        "updatedAt": "2026-05-30T03:29:21.945Z",
+        "fill": "#f7d7a6",
+        "stroke": "#2f5d62",
+        "strokeWidth": 2
+      },
+      {
+        "id": "5cadd795-bc91-495e-a781-46ceff3172dc",
+        "type": "ellipse",
+        "x": 714,
+        "y": 576,
+        "width": 551,
+        "height": 130,
+        "rotation": 0,
+        "zIndex": 5,
+        "createdAt": "2026-05-30T03:29:23.928Z",
+        "updatedAt": "2026-05-30T03:29:26.897Z",
+        "fill": "#cfe8ff",
+        "stroke": "#2f5d62",
+        "strokeWidth": 2
+      },
+      {
+        "id": "3c55ae54-87a7-41da-ac30-fce5cf940c37",
+        "type": "line",
+        "x": 761,
+        "y": 474,
+        "width": 234,
+        "height": 52,
+        "rotation": 0,
+        "zIndex": 6,
+        "createdAt": "2026-05-30T03:29:29.830Z",
+        "updatedAt": "2026-05-30T03:29:29.830Z",
+        "start": {
+          "x": 761,
+          "y": 526
+        },
+        "end": {
+          "x": 995,
+          "y": 474
+        },
+        "stroke": "#2f5d62",
+        "strokeWidth": 6
+      },
+      {
+        "id": "80a1e39f-c736-4bc5-a497-18f118252a37",
+        "type": "image",
+        "x": 377,
+        "y": 602,
+        "width": 258,
+        "height": 221,
+        "rotation": 0,
+        "zIndex": 7,
+        "createdAt": "2026-05-30T03:29:33.779Z",
+        "updatedAt": "2026-05-30T03:29:39.521Z",
+        "src": "assets/images/freehand-09648cb5-b012-4c6e-b1b4-f04e62395835.png",
+        "sourceType": "image",
+        "originalFileName": "freehand.png",
+        "importInfo": {
+          "importedAt": "2026-05-30T03:29:33.779Z"
         }
       }
     ]
