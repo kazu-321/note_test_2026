@@ -28,6 +28,7 @@ jobs:
           cp -R subjects dist/data/
           cp -R notes dist/data/
           cp -R viewer/index.html dist/index.html
+          cp -R viewer/viewer.html dist/viewer.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
