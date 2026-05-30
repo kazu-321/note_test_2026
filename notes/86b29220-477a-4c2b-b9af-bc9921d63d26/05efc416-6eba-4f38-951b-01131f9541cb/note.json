@@ -8,8 +8,8 @@
   "canvas": {
     "type": "infinite",
     "viewport": {
-      "x": 1,
-      "y": -114,
+      "x": -150,
+      "y": -86,
       "scale": 1
     },
     "grid": {
@@ -42,8 +42,8 @@
       {
         "id": "9a61fad7-f159-430f-ac14-70d0c8b0bba6",
         "type": "image",
-        "x": 995,
-        "y": 182,
+        "x": 960,
+        "y": 160,
         "width": 218,
         "height": 240,
         "rotation": 0,
@@ -61,8 +61,8 @@
       {
         "id": "21a800f8-da3e-4aa6-b9e8-ec70878b86ab",
         "type": "text",
-        "x": 320,
-        "y": 206,
+        "x": 340,
+        "y": 200,
         "width": 280,
         "height": 329,
         "rotation": 0,
@@ -81,8 +81,8 @@
       {
         "id": "f0dd98dc-9dd2-4cb6-8e8d-5e18484cb0d1",
         "type": "rect",
-        "x": 662,
-        "y": 346,
+        "x": 710,
+        "y": 430,
         "width": 206,
         "height": 87,
         "rotation": 0,
@@ -96,8 +96,8 @@
       {
         "id": "5cadd795-bc91-495e-a781-46ceff3172dc",
         "type": "ellipse",
-        "x": 714,
-        "y": 576,
+        "x": 580,
+        "y": 630,
         "width": 551,
         "height": 130,
         "rotation": 0,
@@ -111,8 +111,8 @@
       {
         "id": "3c55ae54-87a7-41da-ac30-fce5cf940c37",
         "type": "line",
-        "x": 761,
-        "y": 474,
+        "x": 810,
+        "y": 490,
         "width": 234,
         "height": 52,
         "rotation": 0,
@@ -120,12 +120,12 @@
         "createdAt": "2026-05-30T03:29:29.830Z",
         "updatedAt": "2026-05-30T03:29:29.830Z",
         "start": {
-          "x": 761,
-          "y": 526
+          "x": 810,
+          "y": 542
         },
         "end": {
-          "x": 995,
-          "y": 474
+          "x": 1044,
+          "y": 490
         },
         "stroke": "#2f5d62",
         "strokeWidth": 6
@@ -133,8 +133,8 @@
       {
         "id": "80a1e39f-c736-4bc5-a497-18f118252a37",
         "type": "image",
-        "x": 377,
-        "y": 602,
+        "x": 300,
+        "y": 580,
         "width": 258,
         "height": 221,
         "rotation": 0,
