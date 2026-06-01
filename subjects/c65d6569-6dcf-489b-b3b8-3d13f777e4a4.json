@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "c65d6569-6dcf-489b-b3b8-3d13f777e4a4",
+  "name": "離散",
+  "description": "",
+  "createdAt": "2026-06-01T02:02:49.037Z",
+  "updatedAt": "2026-06-01T02:02:53.727Z",
+  "noteOrder": [
+    "55c9d055-1cbc-4154-96d7-3be2e0308482"
+  ],
+  "notes": [
+    {
+      "id": "55c9d055-1cbc-4154-96d7-3be2e0308482",
+      "title": "前期中間",
+      "metaPath": "notes/c65d6569-6dcf-489b-b3b8-3d13f777e4a4/55c9d055-1cbc-4154-96d7-3be2e0308482/meta.json",
+      "notePath": "notes/c65d6569-6dcf-489b-b3b8-3d13f777e4a4/55c9d055-1cbc-4154-96d7-3be2e0308482/note.json"
+    }
+  ]
+}
